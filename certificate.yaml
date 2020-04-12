@@ -1,0 +1,31 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+      - ./templates/var.yaml
+  tasks:
+    - name: Setting Kube Context
+      shell: kubectl config use-context {{ app.kubeContext }}
+
+
+    - name: Creating certificat resource from template
+      template:
+        src: certificate.yaml.j2
+        dest: templates/certificate.yaml
+
+     
+    - name: Deleting the old certificate resource
+      shell:  "kubectl delete -f templates/certificate.yaml"
+      when:  certificate.delete  == true
+      ignore_errors: yes
+        
+    - name: Creating the certificate resource
+      shell:  "kubectl apply -f templates/certificate.yaml"
+      when:  certificate.apply  == true
+
+    - name: Cleaning the generated files  
+      file:
+        path:  templates/certificate.yaml
+        state: absent
+      when:  certificate.clean == true
+      

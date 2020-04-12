@@ -1,0 +1,18 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+      - ./templates/var.yaml
+  tasks:
+    - include_vars:
+        dir: templates
+        files_matching: var.yaml
+          
+    - name: Creating ingress resource from tamplate
+      template:
+        src: ingress.yaml.j2
+        dest: templates/ingress.yaml
+      vars:
+         app:
+           kubeContext: {{ app.kubeContext }}
+      
