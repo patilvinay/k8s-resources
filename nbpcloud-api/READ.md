@@ -39,3 +39,8 @@ ln -s /home/vagrant/.config/dbstring .dbstring
 ```
 mongodb://user:password@db-instllation-name.svc.cluster.local:27017/dbname
 ```
+
+### Testing the service from local machine
+```
+ kubectl port-forward -n namespace svc/svc-name 4000:80
+ ```
