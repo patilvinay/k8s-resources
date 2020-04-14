@@ -1,0 +1,32 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+      - ./templates/var.yaml
+  tasks:
+  
+    - name: Setting Kube Context
+      shell: kubectl config use-context {{ app.kubeContext }}
+      when:  deployment.apply  == true
+
+    - name: Creating deployment resource from templates
+      template:
+        src: deployment.yaml.j2
+        dest: templates/deployment.yaml
+      
+    - name: Deleting the old deployment resource
+      shell:  "kubectl delete -f templates/deployment.yaml"
+      when:  deployment.delete  == true
+      ignore_errors: yes
+        
+    - name: Creating the deployment resource
+      shell:  "kubectl apply -f templates/deployment.yaml"
+      when:  deployment.apply  == true
+
+    - name: Cleaning the generated files  
+      file:
+        path:  templates/deployment.yaml
+        state: absent
+      when:  deployment.clean == true
+      
+      
