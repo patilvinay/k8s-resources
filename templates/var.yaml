@@ -1,41 +1,43 @@
 
  app:
-  name: docker-registry
-  version: latest
-  host: ngxconnect.in
-  kubeContext: do-blr1-k8s-090420
+    name: cloudbilling
+    version: latest
+    host: ngxconnect.in
+    kubeContext: do-blr1-k8s-090420
+    namespace: cloudbilling
+    
 
  ingress:
-  run: no
-  delete: true #delete before applying
-  apply: true  #apply
-  clean: true  #delete generated file
-  name: "{{ app.name }}"
-  app: "{{ app.name }}"
-  class: istio
-  hostBaseDomain: "{{ app.host }}"
-  svcName: "{{ app.name }}"
-  svcPort: 80  
-  svcPath: /
-  namespace: registry
-  labels:
-    - 'app.kubernetes.io/instance: {{ app.name  }}'
-    - 'app.kubernetes.io/name: {{ app.name  }}'
-    - 'app.kubernetes.io/version: {{ app.version  }}'
-   
-  annotations:
-    - 'kubernetes.io/ingress.class: istio'
+    run: no
+    delete: no #delete before applying
+    apply: true  #apply
+    clean: true  #delete generated file
+    name: "{{ app.name }}"
+    app: "{{ app.name }}"
+    class: istio
+    hostBaseDomain: "{{ app.host }}"
+    svcName: "{{ app.name }}"
+    svcPort: 5000  
+    svcPath: /
+    namespace: "{{ app.namespace }}"
+    labels:
+      - 'app.kubernetes.io/instance: {{ app.name  }}'
+      - 'app.kubernetes.io/name: {{ app.name  }}'
+      - 'app.kubernetes.io/version: {{ app.version  }}'
+    
+    annotations:
+      - 'kubernetes.io/ingress.class: istio'
  
  
 
  certificate:
     run: no
     delete: no #delete in k8s before applying
-    apply: yes  #apply to k8s
+    apply: no  #apply to k8s
     clean: no  #delete generated file
     issuer: letsencrypt
     type: staging #! emum { staging , prod}
-    name: cert-todo
+    #name: cert-todo
     name: "{{ app.name }}"
     app: "{{ app.name }}"
     class: istio
@@ -51,3 +53,35 @@
     
     annotations:
       - 'kubernetes.io/ingress.class: istio'
+
+
+ deployment:
+    run: no
+    delete: no #delete before applying
+    apply: no  #apply
+    clean: no  #delete generated file
+    name: "{{ app.name }}"
+    app: "{{ app.name }}"
+    class: istio
+    hostBaseDomain: "{{ app.host }}"
+    svcName: "{{ app.name }}"
+    svcPort: 5000  
+    svcPath: /
+    namespace: "{{ app.namespace }}"
+    labels:
+      - 'app.kubernetes.io/instance: {{ app.name  }}'
+      - 'app.kubernetes.io/name: {{ app.name  }}'
+      - 'app.kubernetes.io/version: {{ app.version  }}'
+    
+    annotations:
+      - 'kubernetes.io/ingress.class: istio'
+    ports:
+      - 4000
+      - 5000
+    container:
+        name: cloudbilling
+        registry: registry.gitlab.com/vinay.hpatil/
+        image: cloudbilling
+        tag: 0.0.2
+        pullPolicy: IfNotPresent
+    livenessprobe: no 

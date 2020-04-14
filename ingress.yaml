@@ -4,15 +4,28 @@
   vars_files:
       - ./templates/var.yaml
   tasks:
-    - include_vars:
-        dir: templates
-        files_matching: var.yaml
-          
-    - name: Creating ingress resource from tamplate
+  
+    - name: Setting Kube Context
+      shell: kubectl config use-context {{ app.kubeContext }}
+
+    - name: Creating ingress resource from templates
       template:
         src: ingress.yaml.j2
         dest: templates/ingress.yaml
-      vars:
-         app:
-           kubeContext: {{ app.kubeContext }}
+      
+    - name: Deleting the old ingress resource
+      shell:  "kubectl delete -f templates/ingress.yaml"
+      when:  ingress.delete  == true
+      ignore_errors: yes
+        
+    - name: Creating the ingress resource
+      shell:  "kubectl apply -f templates/ingress.yaml"
+      when:  ingress.apply  == true
+
+    - name: Cleaning the generated files  
+      file:
+        path:  templates/ingress.yaml
+        state: absent
+      when:  ingress.clean == true
+      
       
