@@ -1,0 +1,40 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+      - ./templates/var.yaml
+  tasks:
+    - name: Delete existing helm charts if any
+      file:
+        path: "helm"
+        state: absent
+
+    - name: Creating helm directory
+      file:
+        path: "helm/{{ app.name }}"
+        state: directory
+
+    - name: Create Helm Chart
+      shell: helm create helm/{{ app.name }}
+      
+
+    - name: Creating deployment resource from templates
+      template:
+        src: secret.yaml.j2
+        dest: "helm/{{ app.name }}/templates/secret.yaml"
+
+    - name: Creating db secret resource from template
+      template:
+        src: db-secret.yaml.j2
+        dest: helm/{{ app.name }}/templates/db-secret.yaml
+
+
+    - name: Creating certificate resource from template
+      template:
+        src: certificate.yaml.j2
+        dest: helm/certificate.yaml
+
+    
+      
+
+      
