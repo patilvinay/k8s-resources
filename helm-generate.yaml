@@ -16,25 +16,71 @@
 
     - name: Create Helm Chart
       shell: helm create helm/{{ app.name }}
-      
-
-    - name: Creating deployment resource from templates
+ 
+    - name: Creating doc-reg-secret resource from templates
       template:
-        src: secret.yaml.j2
-        dest: "helm/{{ app.name }}/templates/secret.yaml"
-
+        src: doc-reg-secret.yaml.j2
+        dest: "helm/{{ app.name }}/templates/doc-reg-secret.yaml"
+    
     - name: Creating db secret resource from template
       template:
         src: db-secret.yaml.j2
         dest: helm/{{ app.name }}/templates/db-secret.yaml
 
+    - name: Creating values.yaml from templates
+      template:
+        src: values.yaml.j2
+        dest: "helm/{{ app.name }}/values.yaml"
 
-    - name: Creating certificate resource from template
+    - name: Creating Deployment from templates
+      template:
+        src: deployment.yaml.j2
+        dest: "helm/{{ app.name }}/templates/deployment.yaml"
+
+    - name: Creating staging certificate resource from template
+      
       template:
         src: certificate.yaml.j2
-        dest: helm/certificate.yaml
+        dest: helm/certificate-staging.yaml
+      vars:  
+       certificate: 
+          issuer: letsencrypt
+          type: staging
+          name: "{{ app.name }}"
+          app: "{{ app.name }}"
+          #class: istio
+          hostBaseDomain: "{{ app.host }}"
+          namespace: istio-system
 
+    - name: Creating production certificate resource from template
+      template:
+        src: certificate.yaml.j2
+        dest: helm/certificate-prod.yaml
+      vars:  
+         certificate: 
+          issuer: letsencrypt
+          type: prod
+          name: "{{ app.name }}"
+          app: "{{ app.name }}"
+          #class: istio
+          hostBaseDomain: "{{ app.host }}"
+          namespace: istio-system
     
-      
+    - name: Create link to db secret file 
+      file: 
+        dest: "helm/{{ app.name}}/{{ db_secret.file }}"
+        src: "~/.config/{{ db_secret.file }}"
+        state: link
+        force: yes
 
-      
+    - name: Create link to doc-reg-secret file 
+      file: 
+        dest: helm/{{ app.name}}/{{ doc_reg_secret.file }}
+        src: ~/.config/{{ doc_reg_secret.file }}
+        state: link    
+        force: yes  
+
+
+   
+
+   

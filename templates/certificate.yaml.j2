@@ -8,9 +8,9 @@ spec:
   secretName:  {{ certificate.name }}-{{ certificate.type }}
   issuerRef:
 {% if  certificate.type ==  "prod" %}
-     name: letsencrypt
+     name: {{ certificate.issuer }}
 {% elif certificate.type == "staging" %}
-     name: letsencrypt-staging
+     name: {{certificate.issuer}}-{{ certificate.type }}
 {% endif %}
      kind: ClusterIssuer
   commonName: {{ certificate.app }}.{{ certificate.hostBaseDomain }}
