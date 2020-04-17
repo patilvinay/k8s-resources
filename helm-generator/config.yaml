@@ -1,0 +1,19 @@
+app:
+    name: cloudbilling-api
+    version: latest
+    host: ngxconnect.in
+    kubeContext: do-blr1-k8s-090420
+    namespace: cloudbilling
+
+config:
+   deployment: 'enabled' 
+   service: 'enabled'
+   ingress: 'enabled'
+   gateway: 'enabled'
+   virtualService: 'enabled'
+   dockerSecret: 'enabled'
+   applicationSecret: 'enabled'
+   dockersecret: 'enabled'
+
+
+  
